@@ -61,10 +61,21 @@ const TradingChart = () => {
 
 const Index = () => {
   const [isRealMoney, setIsRealMoney] = useState(false);
-  const [balance] = useState({
+  const [balance, setBalance] = useState({
     real: 25000,
     practice: 100000
   });
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
+  const [showCreateAsset, setShowCreateAsset] = useState(false);
+  const [showTopUpPanel, setShowTopUpPanel] = useState(false);
+  const [newAsset, setNewAsset] = useState({
+    name: '',
+    description: '',
+    action: 'buy',
+    price: ''
+  });
+  const [customAssets, setCustomAssets] = useState([]);
 
   const portfolioData = [
     { name: 'AAPL', value: 15420, change: 2.3, percentage: 30 },
@@ -111,8 +122,26 @@ const Index = () => {
             <h1 className="text-2xl font-bold">InvestPro</h1>
           </div>
           
+          {/* AI Assistant Button */}
+          <Button 
+            onClick={() => setShowAiPanel(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
+          >
+            <Icon name="Bot" size={20} />
+            <span>ИИ-Помощник</span>
+          </Button>
+
           {/* Mode Switcher */}
           <div className="flex items-center space-x-4">
+            <Button 
+              onClick={() => setShowTopUpPanel(true)}
+              size="sm"
+              variant="outline"
+              className="border-[#00D4AA] text-[#00D4AA] hover:bg-[#00D4AA] hover:text-black"
+            >
+              <Icon name="Plus" size={16} className="mr-1" />
+              Пополнить
+            </Button>
             <div className="text-right">
               <div className="text-sm text-gray-400">
                 {isRealMoney ? 'Реальный счет' : 'Тренировочный счет'}
@@ -147,9 +176,19 @@ const Index = () => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="text-white">Портфель</span>
-                  <Badge variant={isRealMoney ? "destructive" : "secondary"} className="bg-[#00D4AA] text-black">
-                    {isRealMoney ? 'РЕАЛЬНЫЕ ДЕНЬГИ' : 'ТРЕНИРОВКА'}
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Button 
+                      onClick={() => setShowCreateAsset(true)}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-8"
+                    >
+                      <Icon name="Plus" size={14} className="mr-1" />
+                      Создать актив
+                    </Button>
+                    <Badge variant={isRealMoney ? "destructive" : "secondary"} className="bg-[#00D4AA] text-black">
+                      {isRealMoney ? 'РЕАЛЬНЫЕ ДЕНЬГИ' : 'ТРЕНИРОВКА'}
+                    </Badge>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -398,6 +437,222 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Assistant Panel */}
+      {showAiPanel && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="bg-[#2D2D2D] border-gray-700 w-full max-w-lg m-4">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Icon name="Bot" size={24} className="text-purple-500" />
+                  <span>ИИ-Помощник</span>
+                </div>
+                <Button 
+                  onClick={() => setShowAiPanel(false)}
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                >
+                  <Icon name="X" size={20} />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-[#1A1A1A] rounded-lg">
+                  <div>
+                    <h4 className="text-white font-medium">Автоматическая торговля</h4>
+                    <p className="text-sm text-gray-400">ИИ будет торговать за вас</p>
+                  </div>
+                  <Switch
+                    checked={aiEnabled}
+                    onCheckedChange={setAiEnabled}
+                    className="data-[state=checked]:bg-purple-600"
+                  />
+                </div>
+                
+                {aiEnabled && (
+                  <div className="space-y-3 p-3 bg-[#1A1A1A] rounded-lg">
+                    <h4 className="text-white font-medium">Настройки ИИ</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-sm text-gray-400">Риск</label>
+                        <select className="w-full p-2 bg-[#2D2D2D] border border-gray-600 rounded text-white text-sm">
+                          <option>Низкий</option>
+                          <option>Средний</option>
+                          <option>Высокий</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-400">Макс. сумма</label>
+                        <input 
+                          type="number" 
+                          placeholder="1000" 
+                          className="w-full p-2 bg-[#2D2D2D] border border-gray-600 rounded text-white text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-400 p-2 bg-purple-900/20 rounded">
+                      ИИ анализирует рынок и совершает сделки каждые 15 минут
+                    </div>
+                  </div>
+                )}
+                
+                <div className="text-center">
+                  <Badge className="bg-green-600 text-white">
+                    Активно: {aiEnabled ? 'ВКЛЮЧЕН' : 'ОТКЛЮЧЕН'}
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Create Asset Panel */}
+      {showCreateAsset && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="bg-[#2D2D2D] border-gray-700 w-full max-w-lg m-4">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Icon name="Plus" size={24} className="text-blue-500" />
+                  <span>Создать актив</span>
+                </div>
+                <Button 
+                  onClick={() => setShowCreateAsset(false)}
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                >
+                  <Icon name="X" size={20} />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-400 block mb-2">Название *</label>
+                  <input 
+                    type="text" 
+                    placeholder="Bitcoin, Нефть, Золото..." 
+                    value={newAsset.name}
+                    onChange={(e) => setNewAsset({...newAsset, name: e.target.value})}
+                    className="w-full p-3 bg-[#1A1A1A] border border-gray-600 rounded text-white"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm text-gray-400 block mb-2">Описание (необязательно)</label>
+                  <textarea 
+                    placeholder="Краткое описание актива..." 
+                    value={newAsset.description}
+                    onChange={(e) => setNewAsset({...newAsset, description: e.target.value})}
+                    className="w-full p-3 bg-[#1A1A1A] border border-gray-600 rounded text-white h-20 resize-none"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-400 block mb-2">Действие</label>
+                    <select 
+                      value={newAsset.action}
+                      onChange={(e) => setNewAsset({...newAsset, action: e.target.value})}
+                      className="w-full p-3 bg-[#1A1A1A] border border-gray-600 rounded text-white"
+                    >
+                      <option value="buy">Купить</option>
+                      <option value="sell">Продать</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-400 block mb-2">Цена ($)</label>
+                    <input 
+                      type="number" 
+                      placeholder="100.00" 
+                      value={newAsset.price}
+                      onChange={(e) => setNewAsset({...newAsset, price: e.target.value})}
+                      className="w-full p-3 bg-[#1A1A1A] border border-gray-600 rounded text-white"
+                    />
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    if (newAsset.name && newAsset.price) {
+                      setCustomAssets([...customAssets, {...newAsset, id: Date.now()}]);
+                      setNewAsset({name: '', description: '', action: 'buy', price: ''});
+                      setShowCreateAsset(false);
+                    }
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={!newAsset.name || !newAsset.price}
+                >
+                  Создать актив
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Top Up Panel */}
+      {showTopUpPanel && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="bg-[#2D2D2D] border-gray-700 w-full max-w-md m-4">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Icon name="Plus" size={24} className="text-[#00D4AA]" />
+                  <span>Пополнить баланс</span>
+                </div>
+                <Button 
+                  onClick={() => setShowTopUpPanel(false)}
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white"
+                >
+                  <Icon name="X" size={20} />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-[#1A1A1A] rounded-lg">
+                  <Icon name="Gift" size={32} className="text-[#00D4AA] mx-auto mb-2" />
+                  <h3 className="text-white font-medium mb-1">Бесплатное пополнение</h3>
+                  <p className="text-sm text-gray-400">Выберите сумму от $80,000 до $900,000</p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {[80000, 150000, 250000, 500000, 750000, 900000].map(amount => (
+                    <Button 
+                      key={amount}
+                      onClick={() => {
+                        if (isRealMoney) {
+                          setBalance(prev => ({...prev, real: prev.real + amount}));
+                        } else {
+                          setBalance(prev => ({...prev, practice: prev.practice + amount}));
+                        }
+                        setShowTopUpPanel(false);
+                      }}
+                      variant="outline"
+                      className="h-12 border-[#00D4AA] text-[#00D4AA] hover:bg-[#00D4AA] hover:text-black"
+                    >
+                      +${amount.toLocaleString()}
+                    </Button>
+                  ))}
+                </div>
+                
+                <div className="text-xs text-gray-400 text-center p-2 bg-green-900/20 rounded">
+                  Пополнение полностью бесплатно для обучения
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
