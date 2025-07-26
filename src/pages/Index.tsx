@@ -155,7 +155,7 @@ const Index = () => {
               <CardContent>
                 <div className="space-y-4">
                   {portfolioData.map((stock) => (
-                    <div key={stock.name} className="flex items-center justify-between p-4 bg-[#1A1A1A] rounded-lg">
+                    <div key={stock.name} className="flex items-center justify-between p-4 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors">
                       <div className="flex items-center space-x-4">
                         <div className="w-12 h-12 bg-[#00D4AA] rounded-full flex items-center justify-center text-black font-bold">
                           {stock.name.slice(0, 2)}
@@ -165,13 +165,31 @@ const Index = () => {
                           <div className="text-sm text-gray-400">${stock.value.toLocaleString()}</div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className={`text-sm font-medium ${
-                          stock.change >= 0 ? 'text-[#00D4AA]' : 'text-[#FF4757]'
-                        }`}>
-                          {stock.change >= 0 ? '+' : ''}{stock.change}%
+                      <div className="flex items-center space-x-3">
+                        <div className="text-right">
+                          <div className={`text-sm font-medium ${
+                            stock.change >= 0 ? 'text-[#00D4AA]' : 'text-[#FF4757]'
+                          }`}>
+                            {stock.change >= 0 ? '+' : ''}{stock.change}%
+                          </div>
+                          <Progress value={stock.percentage} className="w-20 mt-1" />
                         </div>
-                        <Progress value={stock.percentage} className="w-20 mt-1" />
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            className="bg-[#FF4757] hover:bg-[#E63946] text-white h-8 px-3"
+                          >
+                            <Icon name="TrendingDown" size={14} className="mr-1" />
+                            Продать
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="bg-[#00D4AA] hover:bg-[#00B894] text-black h-8 px-3"
+                          >
+                            <Icon name="TrendingUp" size={14} className="mr-1" />
+                            Купить
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -199,6 +217,78 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <TradingChart />
+                
+                {/* Quick Trading Panel */}
+                <div className="mt-6 p-4 bg-[#1A1A1A] rounded-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <h4 className="text-white font-medium flex items-center">
+                        <Icon name="TrendingUp" size={16} className="mr-2 text-[#00D4AA]" />
+                        Купить AAPL
+                      </h4>
+                      <div className="space-y-2">
+                        <input 
+                          type="number" 
+                          placeholder="Количество акций" 
+                          className="w-full p-2 bg-[#2D2D2D] border border-gray-600 rounded text-white text-sm"
+                        />
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            $100
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            $500
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            $1000
+                          </Button>
+                        </div>
+                        <Button className="w-full bg-[#00D4AA] hover:bg-[#00B894] text-black font-medium">
+                          Купить за $189.75
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h4 className="text-white font-medium flex items-center">
+                        <Icon name="TrendingDown" size={16} className="mr-2 text-[#FF4757]" />
+                        Продать AAPL
+                      </h4>
+                      <div className="space-y-2">
+                        <input 
+                          type="number" 
+                          placeholder="Количество акций" 
+                          className="w-full p-2 bg-[#2D2D2D] border border-gray-600 rounded text-white text-sm"
+                        />
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            25%
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            50%
+                          </Button>
+                          <Button size="sm" variant="outline" className="flex-1 border-gray-600 text-xs">
+                            100%
+                          </Button>
+                        </div>
+                        <Button className="w-full bg-[#FF4757] hover:bg-[#E63946] text-white font-medium">
+                          Продать за $189.75
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t border-gray-700">
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>Доступно для покупки:</span>
+                      <span className="text-[#00D4AA]">${currentBalance.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-400 mt-1">
+                      <span>В портфеле AAPL:</span>
+                      <span className="text-white">81 акция</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
